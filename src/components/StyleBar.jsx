@@ -46,7 +46,7 @@ export default function StyleBar({
   );
 
   return (
-    <div className="fixed top-20 left-20 right-4 sm:left-auto sm:right-6 z-20 flex flex-wrap items-center gap-2 p-2 bg-white/95 backdrop-blur-md rounded-2xl border border-neutral-200 shadow-lg shadow-neutral-900/5 text-xs text-neutral-800">
+    <div className="fixed top-[60px] sm:top-20 left-2 right-2 md:left-20 md:right-4 lg:left-auto lg:right-6 z-20 flex flex-wrap items-center gap-1.5 sm:gap-2 p-2 bg-white/95 backdrop-blur-md rounded-2xl border border-neutral-200 shadow-lg shadow-neutral-900/5 text-xs text-neutral-800 max-h-[32vh] md:max-h-none overflow-y-auto md:overflow-visible">
       {selectedAnnotation && (
         <div className="flex items-center gap-1.5 pr-2 border-r border-neutral-200">
           <span className="px-2 py-0.5 rounded-md bg-neutral-100 font-mono text-[10px] font-semibold uppercase tracking-wider text-neutral-600">
@@ -81,7 +81,7 @@ export default function StyleBar({
               onClick={() => setColor(c.value)}
               title={c.label}
               style={{ backgroundColor: c.value }}
-              className={`w-6 h-6 rounded-full border cursor-pointer transition-all flex items-center justify-center relative ${
+              className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border cursor-pointer transition-all flex items-center justify-center relative shrink-0 ${
                 c.value === '#ffffff' ? 'border-neutral-300' : 'border-transparent'
               } ${isSelected ? 'scale-115 ring-2 ring-neutral-900 ring-offset-2' : 'hover:scale-105 hover:ring-2 hover:ring-neutral-300 hover:ring-offset-1'}`}
             >
@@ -103,7 +103,7 @@ export default function StyleBar({
             style={{
               backgroundColor: isCustomColor ? color : undefined,
             }}
-            className={`w-6 h-6 rounded-full border cursor-pointer transition-all flex items-center justify-center relative overflow-hidden ${
+            className={`w-5 h-5 sm:w-6 sm:h-6 rounded-full border cursor-pointer transition-all flex items-center justify-center relative overflow-hidden shrink-0 ${
               isCustomColor
                 ? 'scale-115 ring-2 ring-neutral-900 ring-offset-2 border-transparent'
                 : 'hover:scale-105 hover:ring-2 hover:ring-neutral-300 hover:ring-offset-1 border-neutral-300 bg-linear-to-tr from-rose-500 via-indigo-500 to-amber-400'
@@ -140,7 +140,7 @@ export default function StyleBar({
             max="96"
             value={fontSize}
             onChange={(e) => setFontSize(Math.max(8, Number(e.target.value)))}
-            className="w-16 sm:w-20 h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-neutral-900"
+            className="w-12 min-[400px]:w-16 sm:w-20 h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-neutral-900"
           />
           <input
             type="number"
@@ -164,7 +164,7 @@ export default function StyleBar({
             max="40"
             value={strokeWidth}
             onChange={(e) => setStrokeWidth(Math.max(1, Number(e.target.value)))}
-            className="w-16 sm:w-20 h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-neutral-900"
+            className="w-12 min-[400px]:w-16 sm:w-20 h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-neutral-900"
           />
           <div className="flex items-center gap-0.5">
             <input

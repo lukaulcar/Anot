@@ -17,7 +17,7 @@ const HANDLE_GRAB_DIST = 14;
 
 function ZoomControls({ zoom, setZoom }) {
   return (
-    <div className="fixed bottom-6 right-6 z-20 flex items-center gap-1.5 p-1.5 bg-white/95 backdrop-blur-md rounded-2xl border border-neutral-200 shadow-lg shadow-neutral-900/5 text-xs text-neutral-700">
+    <div className="fixed bottom-[76px] right-3 sm:right-4 md:bottom-6 md:right-6 z-20 flex items-center gap-1 md:gap-1.5 p-1 md:p-1.5 bg-white/95 backdrop-blur-md rounded-2xl border border-neutral-200 shadow-lg shadow-neutral-900/5 text-xs text-neutral-700">
       <button
         type="button"
         onClick={() => setZoom((z) => Math.max(0.25, parseFloat((z - 0.15).toFixed(2))))}
@@ -217,7 +217,7 @@ export default function CanvasArea({
     renderCanvas();
   }, [renderCanvas]);
 
-  const getCanvasCoords = (e) => {
+  const getCanvasCoordsFromClient = (clientX, clientY) => {
     const canvas = canvasRef.current;
     if (!canvas) return { x: 0, y: 0 };
     const rect = canvas.getBoundingClientRect();
@@ -226,10 +226,12 @@ export default function CanvasArea({
     const scaleY = canvas.height / rect.height;
 
     return {
-      x: (e.clientX - rect.left) * scaleX,
-      y: (e.clientY - rect.top) * scaleY,
+      x: (clientX - rect.left) * scaleX,
+      y: (clientY - rect.top) * scaleY,
     };
   };
+
+  const getCanvasCoords = (e) => getCanvasCoordsFromClient(e.clientX, e.clientY);
 
   const commitInlineText = useCallback((targetEdit = inlineTextEdit) => {
     if (!targetEdit) return;
@@ -717,15 +719,49 @@ export default function CanvasArea({
     return 'crosshair';
   };
 
+  const lastTapRef = useRef({ time: 0, x: 0, y: 0 });
+
+  const handleTouchStart = (e) => {
+    if (e.touches.length !== 1) return;
+    const t = e.touches[0];
+    const now = Date.now();
+    const prev = lastTapRef.current;
+    const dist = Math.hypot(t.clientX - prev.x, t.clientY - prev.y);
+    if (now - prev.time < 350 && dist < 30) {
+      handleDoubleClick({ clientX: t.clientX, clientY: t.clientY, preventDefault: () => {} });
+      lastTapRef.current = { time: 0, x: 0, y: 0 };
+      return;
+    }
+    lastTapRef.current = { time: now, x: t.clientX, y: t.clientY };
+    handleMouseDown({
+      button: 0,
+      clientX: t.clientX,
+      clientY: t.clientY,
+      preventDefault: () => e.preventDefault(),
+    });
+  };
+
+  const handleTouchMove = (e) => {
+    if (e.touches.length !== 1) return;
+    const t = e.touches[0];
+    handleMouseMove({ clientX: t.clientX, clientY: t.clientY });
+  };
+
+  const handleTouchEnd = (e) => {
+    if (e.touches.length === 0) {
+      handleMouseUp();
+    }
+  };
+
   return (
     <div
       ref={containerRef}
-      className="relative flex-1 w-full h-[calc(100vh-64px)] overflow-auto canvas-grid-pattern flex items-center justify-center p-6 select-none"
+      className="relative flex-1 min-h-0 w-full h-[calc(100dvh-3.5rem)] sm:h-[calc(100dvh-4rem)] overflow-auto canvas-grid-pattern flex p-3 pt-[168px] pb-[104px] sm:p-6 sm:pt-[160px] sm:pb-[100px] md:p-6 select-none"
       onMouseMove={handleMouseMove}
       onMouseUp={handleMouseUp}
     >
       <div
-        className="relative inline-block transition-transform duration-150 ease-out origin-center"
+        className="relative inline-block m-auto transition-transform duration-150 ease-out origin-center"
         style={{ transform: `scale(${zoom})` }}
       >
         <canvas
@@ -734,8 +770,11 @@ export default function CanvasArea({
           height={imageMeta ? imageMeta.height : 600}
           onMouseDown={handleMouseDown}
           onDoubleClick={handleDoubleClick}
-          style={{ cursor: getCursorStyle() }}
-          className="block bg-white shadow-2xl rounded-sm border border-neutral-300 max-w-[85vw] max-h-[78vh] object-contain"
+          onTouchStart={handleTouchStart}
+          onTouchMove={handleTouchMove}
+          onTouchEnd={handleTouchEnd}
+          style={{ cursor: getCursorStyle(), touchAction: 'none' }}
+          className="block bg-white shadow-2xl rounded-sm border border-neutral-300 max-w-[92vw] sm:max-w-[85vw] max-h-[52vh] sm:max-h-[60vh] md:max-h-[78vh] object-contain touch-none"
         />
 
         {inlineTextEdit && canvasRef.current && (() => {

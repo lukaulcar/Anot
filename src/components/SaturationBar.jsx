@@ -6,7 +6,7 @@ export default function SaturationBar({
   onDone,
 }) {
   return (
-    <div className="fixed top-20 left-20 right-4 sm:left-auto sm:right-6 z-20 flex flex-wrap items-center gap-2 p-2 bg-white/95 backdrop-blur-md rounded-2xl border border-neutral-200 shadow-lg shadow-neutral-900/5 text-xs text-neutral-800 animate-in fade-in zoom-in-95">
+    <div className="fixed top-[60px] sm:top-20 left-2 right-2 md:left-20 md:right-4 lg:left-auto lg:right-6 z-20 flex flex-wrap items-center gap-1.5 sm:gap-2 p-2 bg-white/95 backdrop-blur-md rounded-2xl border border-neutral-200 shadow-lg shadow-neutral-900/5 text-xs text-neutral-800 animate-in fade-in zoom-in-95 max-h-[32vh] md:max-h-none overflow-y-auto md:overflow-visible">
       <div className="flex items-center gap-1.5 px-1.5 font-medium text-neutral-800">
         <SlidersHorizontal className="w-3.5 h-3.5 text-neutral-700" />
         <span className="font-semibold text-xs">Image Saturation</span>
@@ -22,7 +22,7 @@ export default function SaturationBar({
           step="1"
           value={saturation}
           onChange={(e) => setSaturation(Math.max(0, Number(e.target.value)))}
-          className="w-28 sm:w-36 h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-neutral-900"
+          className="w-20 min-[400px]:w-28 sm:w-36 h-1.5 bg-neutral-200 rounded-lg appearance-none cursor-pointer accent-neutral-900"
         />
         <div className="flex items-center gap-0.5">
           <input

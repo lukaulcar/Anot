@@ -727,15 +727,15 @@ export default function App() {
         href="https://lukaulcar.com"
         target="_blank"
         rel="noopener noreferrer"
-        className="fixed bottom-3 left-4 z-20 text-[11px] font-medium text-neutral-400 hover:text-neutral-900 bg-white/85 hover:bg-white backdrop-blur-md px-3 py-1 rounded-full border border-neutral-200/80 shadow-xs hover:shadow-md transition-all flex items-center gap-1.5 group"
+        className="fixed bottom-3 left-4 z-10 text-[11px] font-medium text-neutral-400 hover:text-neutral-900 bg-white/85 hover:bg-white backdrop-blur-md px-3 py-1 rounded-full border border-neutral-200/80 shadow-xs hover:shadow-md transition-all hidden md:flex items-center gap-1.5 group"
       >
         <span>Made by</span>
         <span className="font-semibold text-neutral-700 group-hover:text-neutral-950 underline underline-offset-2">lukaulcar.com</span>
       </a>
 
       {imageMeta && isDraggingFile && !pendingImage && (
-        <div className="fixed inset-0 z-40 flex items-center justify-center p-6 bg-neutral-950/40 backdrop-blur-[2px] pointer-events-none">
-          <div className="w-full max-w-lg rounded-2xl border-2 border-dashed border-white bg-white/95 px-10 py-12 flex flex-col items-center justify-center text-center shadow-2xl">
+        <div className="fixed inset-0 z-40 flex items-center justify-center p-4 sm:p-6 bg-neutral-950/40 backdrop-blur-[2px] pointer-events-none">
+          <div className="w-full max-w-lg rounded-2xl border-2 border-dashed border-white bg-white/95 px-6 py-8 sm:px-10 sm:py-12 flex flex-col items-center justify-center text-center shadow-2xl">
             <p className="text-lg font-bold tracking-tight text-neutral-900 mb-1">
               Drop to edit new picture
             </p>

@@ -15,7 +15,7 @@ export default function CropBar({
   const topCut = Math.round(cropBox.y);
 
   return (
-    <div className="fixed top-20 left-20 right-4 sm:left-auto sm:right-6 z-20 flex flex-wrap items-center gap-2 p-2 bg-white/95 backdrop-blur-md rounded-2xl border border-neutral-200 shadow-lg shadow-neutral-900/5 text-xs text-neutral-800 animate-in fade-in zoom-in-95">
+    <div className="fixed top-[60px] sm:top-20 left-2 right-2 md:left-20 md:right-4 lg:left-auto lg:right-6 z-20 flex flex-wrap items-center gap-1.5 sm:gap-2 p-2 bg-white/95 backdrop-blur-md rounded-2xl border border-neutral-200 shadow-lg shadow-neutral-900/5 text-xs text-neutral-800 animate-in fade-in zoom-in-95 max-h-[32vh] md:max-h-none overflow-y-auto md:overflow-visible">
       <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-xl bg-neutral-100 font-mono text-[11px] font-semibold text-neutral-700">
         <span>{croppedW} × {croppedH}px</span>
         {topCut > 0 && (

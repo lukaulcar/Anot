@@ -75,16 +75,16 @@ export default function Navbar({
   };
 
   return (
-    <header className="h-16 border-b border-neutral-200 bg-white/80 backdrop-blur-md sticky top-0 z-30 px-4 md:px-8 flex items-center justify-between transition-colors">
-      <div className="flex items-center gap-4">
+    <header className="h-14 sm:h-16 shrink-0 border-b border-neutral-200 bg-white/80 backdrop-blur-md sticky top-0 z-30 px-2.5 sm:px-4 md:px-8 flex items-center justify-between gap-2 transition-colors">
+      <div className="flex items-center gap-4 min-w-0">
         {imageMeta && (
-          <div className="flex items-center gap-2 text-xs text-neutral-500 font-mono">
-            <FileImage className="w-3.5 h-3.5 text-neutral-400" />
-            <span className="truncate max-w-[200px] font-medium text-neutral-700">
+          <div className="flex items-center gap-1.5 sm:gap-2 text-xs text-neutral-500 font-mono min-w-0">
+            <FileImage className="w-3.5 h-3.5 text-neutral-400 shrink-0" />
+            <span className="truncate max-w-[90px] min-[400px]:max-w-[140px] sm:max-w-[200px] font-medium text-neutral-700">
               {imageMeta.name}
             </span>
-            <span className="text-neutral-300">•</span>
-            <span>
+            <span className="text-neutral-300 hidden min-[500px]:inline">•</span>
+            <span className="hidden min-[500px]:inline whitespace-nowrap">
               {imageMeta.width} × {imageMeta.height}px
             </span>
           </div>
@@ -92,7 +92,7 @@ export default function Navbar({
       </div>
 
       {imageMeta && (
-        <div className="flex items-center gap-1 bg-neutral-100/80 p-1 rounded-xl border border-neutral-200/80">
+        <div className="flex items-center gap-0.5 sm:gap-1 bg-neutral-100/80 p-1 rounded-xl border border-neutral-200/80 shrink-0">
           <button
             type="button"
             onClick={onUndo}
@@ -127,12 +127,12 @@ export default function Navbar({
         </div>
       )}
 
-      <div className="flex items-center gap-2 sm:gap-3">
+      <div className="flex items-center gap-1 sm:gap-3 shrink-0">
         <button
           type="button"
           onClick={() => setShowShortcuts(!showShortcuts)}
           title="Keyboard Shortcuts"
-          className="p-2 rounded-xl text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 cursor-pointer transition-colors"
+          className="hidden min-[420px]:block p-2 rounded-xl text-neutral-500 hover:text-neutral-900 hover:bg-neutral-100 cursor-pointer transition-colors"
         >
           <HelpCircle className="w-4 h-4" />
         </button>
@@ -142,7 +142,8 @@ export default function Navbar({
             <button
               type="button"
               onClick={onChangeImage}
-              className="inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 cursor-pointer rounded-xl transition-colors border border-transparent hover:border-neutral-200"
+              title="Change Image"
+              className="inline-flex items-center gap-1.5 px-2 sm:px-3 py-1.5 text-xs font-medium text-neutral-700 hover:text-neutral-900 hover:bg-neutral-100 cursor-pointer rounded-xl transition-colors border border-transparent hover:border-neutral-200"
             >
               <ImageUp className="w-3.5 h-3.5" />
               <span className="hidden sm:inline">Change Image</span>
@@ -153,10 +154,11 @@ export default function Navbar({
                 <button
                   type="button"
                   onClick={() => onExport('png')}
-                  className="inline-flex items-center gap-1.5 px-3.5 py-1.5 text-xs font-semibold hover:bg-neutral-800 cursor-pointer transition-colors"
+                  className="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 text-xs font-semibold hover:bg-neutral-800 cursor-pointer transition-colors"
                 >
                   <Download className="w-3.5 h-3.5" />
-                  <span>Save Image</span>
+                  <span className="sm:hidden">Save</span>
+                  <span className="hidden sm:inline">Save Image</span>
                 </button>
                 <button
                   type="button"
