@@ -6,6 +6,7 @@ import StyleBar from './components/StyleBar';
 import CropBar from './components/CropBar';
 import SaturationBar from './components/SaturationBar';
 import CanvasArea from './components/CanvasArea';
+import SwitchImageModal from './components/SwitchImageModal';
 import {
   TOOL_TYPES,
   COLOR_PALETTE,
@@ -42,6 +43,10 @@ export default function App() {
   const [isStorageLoaded, setIsStorageLoaded] = useState(false);
 
   const [cropBox, setCropBox] = useState(null);
+
+  // Staged image dropped/pasted while already editing — confirmed via modal.
+  const [pendingImage, setPendingImage] = useState(null);
+  const [isDraggingFile, setIsDraggingFile] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -209,6 +214,67 @@ export default function App() {
     setSaturation(100);
   };
 
+  const isImageFile = (file) => {
+    if (!file) return false;
+    if (file.type && file.type.startsWith('image/')) return true;
+    return /\.(svg|webp|avif|bmp|gif|png|jpe?g)$/i.test(file.name || '');
+  };
+
+  const fileToImageMeta = (file) =>
+    new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onerror = () => reject(new Error('read failed'));
+      reader.onload = (event) => {
+        const img = new Image();
+        img.onload = () => {
+          resolve({
+            src: event.target.result,
+            name: file.name || `dropped-image-${Date.now()}.png`,
+            width: img.naturalWidth,
+            height: img.naturalHeight,
+            type: file.type || 'image/png',
+            size: file.size,
+          });
+        };
+        img.onerror = () => reject(new Error('invalid image'));
+        img.src = event.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+
+  const handleIncomingFile = useCallback(
+    async (file) => {
+      if (!file) return;
+      if (!isImageFile(file)) {
+        alert('Please upload a valid image file.');
+        return;
+      }
+      try {
+        const meta = await fileToImageMeta(file);
+        if (!imageMeta) {
+          handleImageSelected(meta);
+        } else {
+          setPendingImage(meta);
+        }
+      } catch (err) {
+        console.error('Failed to load dropped image:', err);
+        alert('Failed to load image. Please try again.');
+      }
+    },
+    [imageMeta]
+  );
+
+  const handleConfirmSwitchImage = useCallback(() => {
+    if (pendingImage) {
+      handleImageSelected(pendingImage);
+      setPendingImage(null);
+    }
+  }, [pendingImage]);
+
+  const handleCancelSwitchImage = useCallback(() => {
+    setPendingImage(null);
+  }, []);
+
   const handleChangeImage = () => {
     if (annotations.length > 0) {
       if (!window.confirm('Upload a new image? Current annotations will be discarded.')) {
@@ -356,22 +422,8 @@ export default function App() {
         if (items[i].type.indexOf('image') !== -1) {
           const file = items[i].getAsFile();
           if (file) {
-            const reader = new FileReader();
-            reader.onload = (event) => {
-              const img = new Image();
-              img.onload = () => {
-                handleImageSelected({
-                  src: event.target.result,
-                  name: `clipboard-image-${Date.now()}.png`,
-                  width: img.naturalWidth,
-                  height: img.naturalHeight,
-                  type: 'image/png',
-                  size: file.size,
-                });
-              };
-              img.src = event.target.result;
-            };
-            reader.readAsDataURL(file);
+            e.preventDefault();
+            handleIncomingFile(file);
             break;
           }
         }
@@ -380,7 +432,66 @@ export default function App() {
 
     window.addEventListener('paste', handlePaste);
     return () => window.removeEventListener('paste', handlePaste);
-  }, []);
+  }, [handleIncomingFile]);
+
+  // While editing, dropping a new image anywhere stages it and asks for confirmation.
+  useEffect(() => {
+    if (!imageMeta) return;
+
+    let dragCounter = 0;
+
+    const hasFiles = (e) => Array.from(e.dataTransfer?.types || []).includes('Files');
+
+    const handleDragEnter = (e) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      dragCounter += 1;
+      setIsDraggingFile(true);
+    };
+
+    const handleDragOver = (e) => {
+      if (!hasFiles(e) && !isDraggingFile) return;
+      e.preventDefault();
+    };
+
+    const handleDragLeave = (e) => {
+      if (!hasFiles(e)) return;
+      e.preventDefault();
+      dragCounter = Math.max(0, dragCounter - 1);
+      if (dragCounter === 0) setIsDraggingFile(false);
+    };
+
+    const handleDrop = (e) => {
+      e.preventDefault();
+      dragCounter = 0;
+      setIsDraggingFile(false);
+      const file = e.dataTransfer?.files?.[0];
+      if (file) handleIncomingFile(file);
+    };
+
+    window.addEventListener('dragenter', handleDragEnter);
+    window.addEventListener('dragover', handleDragOver);
+    window.addEventListener('dragleave', handleDragLeave);
+    window.addEventListener('drop', handleDrop);
+    return () => {
+      window.removeEventListener('dragenter', handleDragEnter);
+      window.removeEventListener('dragover', handleDragOver);
+      window.removeEventListener('dragleave', handleDragLeave);
+      window.removeEventListener('drop', handleDrop);
+    };
+  }, [imageMeta, handleIncomingFile, isDraggingFile]);
+
+  // Escape closes the pending-image modal (unless typing in an input).
+  useEffect(() => {
+    if (!pendingImage) return;
+    const handleKeyDown = (e) => {
+      if (e.key === 'Escape' && !['INPUT', 'TEXTAREA'].includes(e.target.tagName)) {
+        setPendingImage(null);
+      }
+    };
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [pendingImage]);
 
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -621,6 +732,26 @@ export default function App() {
         <span>Made by</span>
         <span className="font-semibold text-neutral-700 group-hover:text-neutral-950 underline underline-offset-2">lukaulcar.com</span>
       </a>
+
+      {imageMeta && isDraggingFile && !pendingImage && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center p-6 bg-neutral-950/40 backdrop-blur-[2px] pointer-events-none">
+          <div className="w-full max-w-lg rounded-2xl border-2 border-dashed border-white bg-white/95 px-10 py-12 flex flex-col items-center justify-center text-center shadow-2xl">
+            <p className="text-lg font-bold tracking-tight text-neutral-900 mb-1">
+              Drop to edit new picture
+            </p>
+            <p className="text-sm text-neutral-500">
+              Release to review it first — nothing is discarded until you click “Yes”.
+            </p>
+          </div>
+        </div>
+      )}
+
+      <SwitchImageModal
+        pendingImage={pendingImage}
+        hasAnnotations={annotations.length > 0}
+        onConfirm={handleConfirmSwitchImage}
+        onCancel={handleCancelSwitchImage}
+      />
     </div>
   );
 }
